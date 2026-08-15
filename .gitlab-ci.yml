@@ -2,7 +2,7 @@ stages:
   - build
 
 variables:
-  IMAGE_NAME: "jonashonecker/feedpaper"
+  IMAGE_NAME: "rarosalion/feedpaper-docker"
   IMAGE_TAG: "latest"
 
 build_image:

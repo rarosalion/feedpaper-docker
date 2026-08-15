@@ -10,7 +10,7 @@ This workspace contains:
 Build the image locally:
 
 ```bash
-docker build -t jonashonecker/feedpaper:local .
+docker build -t rarosalion/feedpaper-docker:local .
 ```
 
 Run it once with a config file mounted in place:
@@ -26,7 +26,7 @@ chmod 600 ~/.config/feedpaper/config
 docker run --rm \
   -v "$HOME/.config/feedpaper/config:/root/.config/feedpaper/config:ro" \
   -v "$PWD/output:/output" \
-  jonashonecker/feedpaper:local
+  rarosalion/feedpaper-docker:local
 ```
 
 ## Helm chart
@@ -46,7 +46,7 @@ A production-style configuration file is included at [helm/feedpaper/values.prod
 helm install feedpaper ./helm/feedpaper -f ./helm/feedpaper/values.production.yaml
 ```
 
-The chart creates a Secret containing a `config` file, mounts it at `/root/.config/feedpaper/config`, and runs `feedpaper -o /output` on the configured CronJob schedule.
+The chart creates a Secret containing a `config` file, mounts it at `/root/.config/feedpaper/config`, and runs `feedpaper -o /output` on the configured CronJob schedule. The chart image repository is set to `rarosalion/feedpaper-docker`, while the Dockerfile still builds from the upstream source repository at `jonashonecker/feedpaper`.
 
 To suppress output persistence, set:
 
@@ -62,7 +62,7 @@ The chart is configured through [helm/feedpaper/values.yaml](helm/feedpaper/valu
 
 ```yaml
 image:
-  repository: jonashonecker/feedpaper   # Container image repository
+  repository: rarosalion/feedpaper-docker   # Published image repository
   tag: "v0.1.3"                         # Pinned image tag
   pullPolicy: IfNotPresent
 
