@@ -1,0 +1,6 @@
+apiVersion: v2
+name: feedpaper
+description: A Helm chart for running the feedpaper EPUB generator as a CronJob.
+type: application
+version: 0.1.0
+appVersion: "0.1.3"

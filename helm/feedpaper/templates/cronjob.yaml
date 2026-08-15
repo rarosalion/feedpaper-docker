@@ -1,0 +1,114 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "feedpaper.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "feedpaper.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  schedule: {{ .Values.feedpaper.schedule | quote }}
+  timeZone: {{ .Values.feedpaper.timezone | quote }}
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  suspend: {{ .Values.cronjob.suspend }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "feedpaper.name" . }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
+          {{- with .Values.cronjob.pod.labels }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.cronjob.pod.annotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          restartPolicy: OnFailure
+          {{- with .Values.cronjob.pod.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.cronjob.pod.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.cronjob.pod.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: feedpaper
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: FEEDPAPER_OUTPUT_DIR
+                  value: {{ .Values.feedpaper.outputDir | quote }}
+                - name: FEEDPAPER_KEEP_UNREAD
+                  value: {{ .Values.feedpaper.keepUnread | quote }}
+                - name: FEEDPAPER_EMAIL_ENABLED
+                  value: {{ .Values.mail.enabled | quote }}
+                - name: FEEDPAPER_EMAIL_TO
+                  value: {{ .Values.mail.to | quote }}
+                - name: FEEDPAPER_EMAIL_FROM
+                  value: {{ .Values.mail.from | quote }}
+                - name: FEEDPAPER_EMAIL_SUBJECT
+                  value: {{ .Values.mail.subject | quote }}
+                - name: FEEDPAPER_SMTP_HOST
+                  value: {{ .Values.mail.smtpHost | quote }}
+                - name: FEEDPAPER_SMTP_PORT
+                  value: {{ .Values.mail.smtpPort | quote }}
+                - name: FEEDPAPER_SMTP_STARTTLS
+                  value: {{ .Values.mail.smtpStartTls | quote }}
+                {{- if .Values.mail.smtpUsername }}
+                - name: FEEDPAPER_SMTP_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "feedpaper.fullname" . }}-mail
+                      key: smtp-username
+                {{- end }}
+                {{- if .Values.mail.smtpPassword }}
+                - name: FEEDPAPER_SMTP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "feedpaper.fullname" . }}-mail
+                      key: smtp-password
+                {{- end }}
+              args:
+                - -o
+                - {{ .Values.feedpaper.outputDir | quote }}
+                {{- range .Values.feedpaper.extraArgs }}
+                - {{ . | quote }}
+                {{- end }}
+              volumeMounts:
+                - name: config
+                  mountPath: /root/.config/feedpaper
+                  readOnly: true
+                - name: output
+                  mountPath: {{ .Values.feedpaper.outputDir | quote }}
+              {{- with .Values.cronjob.pod.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .Values.cronjob.pod.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          volumes:
+            - name: config
+              secret:
+                secretName: {{ include "feedpaper.fullname" . }}-config
+                items:
+                  - key: config
+                    path: config
+            - name: output
+              {{- if .Values.persistence.enabled }}
+              persistentVolumeClaim:
+                claimName: {{ include "feedpaper.fullname" . }}-output
+              {{- else }}
+              emptyDir: {}
+              {{- end }}
