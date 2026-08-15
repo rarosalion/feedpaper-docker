@@ -40,7 +40,7 @@ helm install feedpaper ./helm/feedpaper \
   --set feedpaper.schedule='0 6 * * *'
 ```
 
-A production-style configuration file is included at [helm/feedpaper/values.production.yaml](helm/feedpaper/values.production.yaml). It pins the feedpaper image tag to the current upstream release, `0.1.3`, and can be used like this:
+A production-style configuration file is included at [helm/feedpaper/values.production.yaml](helm/feedpaper/values.production.yaml). It uses the current feedpaper image tag value from the chart (for example, `v0.1.3`) and can be used like this:
 
 ```bash
 helm install feedpaper ./helm/feedpaper -f ./helm/feedpaper/values.production.yaml
@@ -63,7 +63,7 @@ The chart is configured through [helm/feedpaper/values.yaml](helm/feedpaper/valu
 ```yaml
 image:
   repository: jonashonecker/feedpaper   # Container image repository
-  tag: "0.1.3"                         # Pinned image tag
+  tag: "v0.1.3"                         # Pinned image tag
   pullPolicy: IfNotPresent
 
 feedpaper:

@@ -24,9 +24,18 @@
       "matchPackageNames": [
         "jonashonecker/feedpaper"
       ],
-      "allowedVersions": "0.1.3",
       "versioning": "docker",
-      "description": "Keep the feedpaper image pinned to the currently known-good release until a deliberate version bump is made."
+      "description": "Track feedpaper releases and update the pinned image tag automatically when a new release is published."
+    },
+    {
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "python"
+      ],
+      "versioning": "docker",
+      "description": "Track updates for the Python base image used in the container build without pinning to a floating tag."
     }
   ]
 }
