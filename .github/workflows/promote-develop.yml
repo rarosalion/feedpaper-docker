@@ -40,4 +40,4 @@ jobs:
             pr_number=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
           fi
 
-          gh pr merge "$pr_number" --auto --squash
+          gh pr merge "$pr_number" --auto --merge
