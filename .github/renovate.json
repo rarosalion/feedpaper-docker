@@ -15,18 +15,10 @@
   "helm-values": {
     "enabled": true
   },
+  "git-submodules": {
+    "enabled": true
+  },
   "packageRules": [
-    {
-      "matchManagers": [
-        "dockerfile",
-        "helm-values"
-      ],
-      "matchPackageNames": [
-        "jonashonecker/feedpaper"
-      ],
-      "versioning": "docker",
-      "description": "Track feedpaper releases and update the pinned image tag automatically when a new release is published."
-    },
     {
       "matchManagers": [
         "dockerfile"
