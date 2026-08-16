@@ -4,6 +4,7 @@ helmDefaults:
 releases:
   - name: feedpaper
     namespace: feedpaper
-    chart: ./helm/feedpaper
+    chart: oci://ghcr.io/rarosalion/charts/feedpaper
+    version: "0.1.1"
     values:
       - ./helm/feedpaper/values.yaml
