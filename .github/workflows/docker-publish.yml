@@ -6,6 +6,9 @@ on:
       - main
     tags:
       - 'v*'
+  release:
+    types:
+      - published
   workflow_dispatch:
 
 permissions:
@@ -18,7 +21,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -39,7 +42,9 @@ jobs:
           images: rarosalion/feedpaper-docker
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
-            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=sha
 
       - name: Build and push image
