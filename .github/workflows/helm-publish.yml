@@ -1,0 +1,96 @@
+name: Package and publish Helm chart
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types:
+      - published
+  workflow_run:
+    workflows:
+      - Create semantic version release
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  helm:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Determine chart version
+        id: version
+        run: |
+          set -euo pipefail
+          tag=$(git tag --list 'v*' --points-at HEAD | sort -V | tail -n1)
+          if [[ -z "$tag" ]]; then
+            tag=$(git describe --tags --abbrev=0 --match 'v*')
+          fi
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Helm
+        uses: Azure/setup-helm@v5.0.1
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Package and push chart
+        run: |
+          set -euo pipefail
+          version="${{ steps.version.outputs.version }}"
+          helm package ./helm/feedpaper --version "$version" --app-version "$version" -d /tmp/chart-out
+          helm push "/tmp/chart-out/feedpaper-${version}.tgz" oci://ghcr.io/rarosalion/charts
+
+  # release.yml tags/publishes using the default GITHUB_TOKEN, which GitHub
+  # excludes from triggering push/release events on other workflows
+  # (anti-recursion guard, same issue docker-publish.yml works around).
+  # workflow_run is the documented escape hatch, so this job picks up the
+  # tag it left behind.
+  helm-from-release:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Find release tag for this commit
+        id: release_tag
+        run: |
+          set -euo pipefail
+          tag=$(git tag --list 'v*' --points-at HEAD | sort -V | tail -n1)
+          {
+            echo "tag=${tag}"
+            echo "found=$([[ -n "$tag" ]] && echo true || echo false)"
+            echo "version=${tag#v}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Helm
+        if: steps.release_tag.outputs.found == 'true'
+        uses: Azure/setup-helm@v5.0.1
+
+      - name: Log in to GHCR
+        if: steps.release_tag.outputs.found == 'true'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Package and push chart
+        if: steps.release_tag.outputs.found == 'true'
+        run: |
+          set -euo pipefail
+          version="${{ steps.release_tag.outputs.version }}"
+          helm package ./helm/feedpaper --version "$version" --app-version "$version" -d /tmp/chart-out
+          helm push "/tmp/chart-out/feedpaper-${version}.tgz" oci://ghcr.io/rarosalion/charts
