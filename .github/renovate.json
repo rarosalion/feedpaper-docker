@@ -13,7 +13,10 @@
     "enabled": true
   },
   "helm-values": {
-    "enabled": true
+    "enabled": true,
+    "fileMatch": [
+      "(^|/)values.*\\.ya?ml$"
+    ]
   },
   "git-submodules": {
     "enabled": true
@@ -28,6 +31,16 @@
       ],
       "versioning": "docker",
       "description": "Track updates for the Python base image used in the container build without pinning to a floating tag."
+    },
+    {
+      "matchManagers": [
+        "helm-values"
+      ],
+      "matchPackageNames": [
+        "rarosalion/feedpaper-docker"
+      ],
+      "versioning": "docker",
+      "description": "Bump the pinned feedpaper-docker image tag in the Helm values files whenever release.yml/docker-publish.yml cut a new version."
     }
   ]
 }
