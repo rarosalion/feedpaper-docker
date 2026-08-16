@@ -1,0 +1,7 @@
+ignored:
+  # ca-certificates should always install the distro's current version, not a
+  # pinned one that goes stale.
+  - DL3008
+  # pip/setuptools/wheel are bootstrap tooling for the build step, not an
+  # application dependency; pinning them here isn't worth the upkeep.
+  - DL3013
