@@ -46,7 +46,7 @@ A production-style configuration file is included at [helm/feedpaper/values.prod
 helm install feedpaper ./helm/feedpaper -f ./helm/feedpaper/values.production.yaml
 ```
 
-The chart creates a Secret containing a `config` file, mounts it at `/root/.config/feedpaper/config`, and runs `feedpaper -o /output` on the configured CronJob schedule. The chart image repository is set to `rarosalion/feedpaper-docker`, while the Dockerfile still builds from the upstream source repository at `jonashonecker/feedpaper`.
+The chart creates a Secret containing a `config` file, mounts it at `/root/.config/feedpaper/config`, and runs `feedpaper -o /output` on the configured CronJob schedule. The chart image repository is set to `rarosalion/feedpaper-docker`, and the Dockerfile builds from the vendored source checked into this repository at `./feedpaper`.
 
 To suppress output persistence, set:
 

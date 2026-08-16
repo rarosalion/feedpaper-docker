@@ -1,8 +1,4 @@
-ARG FEEDPAPER_VERSION=v0.1.3
-
 FROM python:3.14.7-slim
-
-ARG FEEDPAPER_VERSION
 
 WORKDIR /app
 
@@ -10,7 +6,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --branch "${FEEDPAPER_VERSION}" https://github.com/jonashonecker/feedpaper.git /tmp/feedpaper
+COPY feedpaper/ /tmp/feedpaper/
 
 WORKDIR /tmp/feedpaper
 
