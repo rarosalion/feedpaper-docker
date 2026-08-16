@@ -44,7 +44,6 @@ persistence:
   size: 1Gi
   accessMode: ReadWriteOnce
   storageClass: ""
-  selector: {}
 
 nameOverride: ""
 fullnameOverride: ""
