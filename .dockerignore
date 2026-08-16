@@ -1,6 +1,11 @@
+.git
+.github
+helm/
+helmfile.yaml
+README.md
+.gitignore
 **/.git
 **/.venv
 **/__pycache__
 **/*.pyc
 **/.DS_Store
-helm/

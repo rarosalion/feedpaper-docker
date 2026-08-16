@@ -6,7 +6,16 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY feedpaper/ /tmp/feedpaper/
+COPY . /tmp/build-context/
+
+RUN set -eux; \
+    if [ -d /tmp/build-context/feedpaper ]; then \
+        SOURCE_DIR=/tmp/build-context/feedpaper; \
+    else \
+        SOURCE_DIR=/tmp/build-context; \
+    fi; \
+    cp -a "$SOURCE_DIR" /tmp/feedpaper; \
+    rm -rf /tmp/build-context
 
 WORKDIR /tmp/feedpaper
 
