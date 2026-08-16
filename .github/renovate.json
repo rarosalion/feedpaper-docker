@@ -21,6 +21,9 @@
   "git-submodules": {
     "enabled": true
   },
+  "helmfile": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "matchManagers": [
