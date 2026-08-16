@@ -32,12 +32,12 @@ jobs:
 
           pr_number=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty')
           if [[ -z "$pr_number" ]]; then
-            pr_number=$(gh pr create \
+            gh pr create \
               --base main \
               --head develop \
               --title "Promote develop to main" \
-              --body "Automated promotion of develop into main. Merges automatically once CI is green." \
-              --json number --jq '.number')
+              --body "Automated promotion of develop into main. Merges automatically once CI is green."
+            pr_number=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
           fi
 
           gh pr merge "$pr_number" --auto --squash
