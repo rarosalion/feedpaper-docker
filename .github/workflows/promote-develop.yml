@@ -1,0 +1,43 @@
+name: Promote develop to main
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Open or update the develop -> main PR and enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin main
+          if [[ -z "$(git log origin/main..HEAD)" ]]; then
+            echo "develop has no commits ahead of main; nothing to promote."
+            exit 0
+          fi
+
+          pr_number=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty')
+          if [[ -z "$pr_number" ]]; then
+            pr_number=$(gh pr create \
+              --base main \
+              --head develop \
+              --title "Promote develop to main" \
+              --body "Automated promotion of develop into main. Merges automatically once CI is green." \
+              --json number --jq '.number')
+          fi
+
+          gh pr merge "$pr_number" --auto --squash
