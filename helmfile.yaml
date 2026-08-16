@@ -1,0 +1,9 @@
+helmDefaults:
+  createNamespace: true
+
+releases:
+  - name: feedpaper
+    namespace: feedpaper
+    chart: ./helm/feedpaper
+    values:
+      - ./helm/feedpaper/values.yaml
