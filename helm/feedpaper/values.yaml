@@ -41,9 +41,17 @@ cronjob:
 
 persistence:
   enabled: true
+  type: pvc # pvc | s3
   size: 1Gi
   accessMode: ReadWriteOnce
   storageClass: ""
+  s3:
+    bucketName: ""
+    endpointUrl: ""
+    region: default
+    fileMode: "666"
+    dirMode: "777"
+    extraMountOptions: []
 
 nameOverride: ""
 fullnameOverride: ""
