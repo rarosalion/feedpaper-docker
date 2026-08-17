@@ -103,10 +103,18 @@ cronjob:
     securityContext: {}
 
 persistence:
-  enabled: true                         # Mount a PVC for the output directory
+  enabled: true                         # Mount a volume for the output directory
+  type: pvc                             # pvc (dynamic provisioning) or s3 (static PV via the AWS Mountpoint S3 CSI driver)
   size: 1Gi
   accessMode: ReadWriteOnce
-  storageClass: ""
+  storageClass: ""                      # Used when type=pvc
+  s3:                                   # Used when type=s3
+    bucketName: ""                      # Required: an existing bucket, the CSI driver does not create it
+    endpointUrl: ""                     # Required: e.g. https://s3.example.com for an S3-compatible endpoint
+    region: default
+    fileMode: "666"
+    dirMode: "777"
+    extraMountOptions: []               # Additional mountpoint-s3 CLI flags, e.g. "prefix some/path/"
 
 nameOverride: ""
 fullnameOverride: ""
